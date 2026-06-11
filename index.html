@@ -1,0 +1,2497 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CamperVolt – Unabhängige Camper-Elektrik Planung</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Caveat:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ===== DESIGN TOKENS ===== */
+:root {
+  --ocean:    #0d2b35;   /* Tiefes Ozean-Nachts-Blau */
+  --ocean-mid:#174052;   /* Mittleres Teal */
+  --sand:     #f2ede4;   /* Warmer Sandstrand */
+  --sand-dark:#e8e0d2;
+  --coral:    #e8703a;   /* Sonnenuntergang-Korall */
+  --coral-lt: #fdf3ec;
+  --mint:     #a8c5bc;   /* Verblasstes Surf-Mint */
+  --chalk:    #fafaf7;   /* Fast-Weiß */
+  --text:     #1a2820;
+  --muted:    #5a6e66;
+  --border:   #ddd6c8;
+
+  --ff-h: 'Archivo Black', sans-serif;   /* Fett, Energie */
+  --ff-hand: 'Caveat', cursive;           /* Handgeschrieben für Sticker/Labels */
+  --ff-b: 'Inter', sans-serif;
+
+  --radius-sm: 10px;
+  --radius:    18px;
+  --radius-lg: 28px;
+  --shadow:    0 12px 36px rgba(13, 43, 53, 0.1);
+  --shadow-lg: 0 24px 60px rgba(13, 43, 53, 0.15);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--sand);
+  color: var(--text);
+  font-family: var(--ff-b);
+  min-height: 100vh;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* ===== HERO FULL-BLEED ===== */
+.hero-section {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg,
+      rgba(13,43,53,0.72) 0%,
+      rgba(13,43,53,0.45) 40%,
+      rgba(13,43,53,0.85) 100%),
+    url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1800&q=85') center center / cover no-repeat;
+  z-index: 0;
+}
+
+/* Subtle grain overlay for texture */
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.hero-nav {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 40px;
+}
+
+@media (max-width: 600px) {
+  .hero-nav { padding: 20px 20px; }
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+}
+
+.logo-bolt {
+  width: 38px;
+  height: 38px;
+  background: var(--coral);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 14px rgba(232,112,58,0.45);
+  flex-shrink: 0;
+}
+
+.logo-name {
+  font-family: var(--ff-h);
+  font-size: 22px;
+  color: white;
+  letter-spacing: -0.3px;
+}
+
+.trust-pill {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  backdrop-filter: blur(12px);
+  color: white;
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 40px 40px 60px;
+  max-width: 780px;
+}
+
+@media (max-width: 600px) {
+  .hero-content { padding: 30px 20px 50px; }
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(232,112,58,0.25);
+  border: 1px solid rgba(232,112,58,0.5);
+  color: #ffc9a8;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  margin-bottom: 22px;
+  width: fit-content;
+}
+
+.hero-h1 {
+  font-family: var(--ff-h);
+  font-size: clamp(42px, 7vw, 74px);
+  color: white;
+  line-height: 1.0;
+  letter-spacing: -1px;
+  margin-bottom: 20px;
+}
+
+.hero-h1 em {
+  font-style: normal;
+  color: var(--coral);
+}
+
+.hero-sub {
+  color: rgba(255,255,255,0.72);
+  font-size: 17px;
+  max-width: 520px;
+  margin-bottom: 36px;
+  line-height: 1.7;
+}
+
+.hero-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: var(--coral);
+  border: none;
+  border-radius: 14px;
+  padding: 18px 36px;
+  font-family: var(--ff-h);
+  font-size: 17px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 8px 24px rgba(232,112,58,0.4);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  background: #d4602e;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(232,112,58,0.5);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.btn-ghost:hover { color: white; }
+
+/* ===== MAIN CONTAINER ===== */
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px 120px;
+  position: relative;
+}
+
+/* ===== JONAS STORY SECTION ===== */
+.story-section {
+  padding: 80px 0 60px;
+}
+
+.section-tag {
+  font-family: var(--ff-hand);
+  font-size: 22px;
+  color: var(--coral);
+  margin-bottom: 6px;
+}
+
+.section-h2 {
+  font-family: var(--ff-h);
+  font-size: clamp(28px, 4vw, 42px);
+  color: var(--ocean);
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  margin-bottom: 16px;
+}
+
+.story-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 18px;
+  margin-top: 40px;
+}
+
+@media (max-width: 680px) {
+  .story-grid { grid-template-columns: 1fr; }
+}
+
+.story-card {
+  background: var(--chalk);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+  position: relative;
+}
+
+.story-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.story-card-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.story-card-body {
+  padding: 18px 20px 20px;
+}
+
+.story-card-label {
+  font-family: var(--ff-hand);
+  font-size: 19px;
+  color: var(--coral);
+  margin-bottom: 4px;
+}
+
+.story-card-text {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+/* Sticker badge on cards */
+.sticker {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: var(--coral);
+  color: white;
+  font-family: var(--ff-hand);
+  font-size: 14px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  transform: rotate(2deg);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+/* Persona block */
+.jonas-intro {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 24px;
+  align-items: center;
+  background: var(--chalk);
+  border-radius: var(--radius);
+  padding: 32px 36px;
+  box-shadow: var(--shadow);
+  margin-bottom: 18px;
+}
+
+@media (max-width: 600px) {
+  .jonas-intro {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 24px 20px;
+  }
+}
+
+.jonas-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--coral);
+  flex-shrink: 0;
+}
+
+.jonas-name {
+  font-family: var(--ff-h);
+  font-size: 22px;
+  color: var(--ocean);
+  margin-bottom: 6px;
+}
+
+.jonas-bio {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.jonas-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.jtag {
+  background: var(--sand-dark);
+  color: var(--ocean-mid);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
+/* ===== STEPPER (PROGRESS BAR) ===== */
+.steps-wrap {
+  position: sticky;
+  top: 16px;
+  z-index: 50;
+  display: none;
+  margin-bottom: 40px;
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  background: rgba(250,250,247,0.96);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 12px 24px;
+  box-shadow: 0 8px 32px rgba(13,43,53,0.12);
+  gap: 0;
+}
+
+.sdot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sdot .d {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  background: transparent;
+  transition: all 0.3s;
+}
+
+.sdot .lbl {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .sdot .lbl { display: none; }
+  .steps { padding: 10px 18px; }
+}
+
+.sdot.active .d {
+  border-color: var(--coral);
+  color: white;
+  background: var(--coral);
+  box-shadow: 0 4px 12px rgba(232,112,58,0.35);
+}
+
+.sdot.active .lbl { color: var(--ocean); font-weight: 700; }
+
+.sdot.done .d {
+  background: var(--ocean);
+  border-color: var(--ocean);
+  color: white;
+}
+
+.sdot.done .lbl { color: var(--muted); }
+
+.sline {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  margin: 0 12px;
+  min-width: 16px;
+  border-radius: 2px;
+}
+
+/* ===== STEP TRANSITIONS ===== */
+.step { display: none; opacity: 0; }
+.step.active {
+  display: block;
+  animation: stepIn 0.45s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes stepIn {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== STEP HEADERS ===== */
+.sh {
+  margin-bottom: 36px;
+}
+
+.sh-tag {
+  font-family: var(--ff-hand);
+  font-size: 21px;
+  color: var(--coral);
+  margin-bottom: 4px;
+}
+
+.sh h2 {
+  font-family: var(--ff-h);
+  font-size: clamp(26px, 4vw, 38px);
+  color: var(--ocean);
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.sh p {
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.back-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.back-btn:hover { color: var(--ocean); }
+
+.sec-lbl {
+  font-family: var(--ff-h);
+  font-size: 18px;
+  color: var(--ocean);
+  margin: 36px 0 16px;
+  letter-spacing: -0.3px;
+}
+
+/* ===== MODE CARDS (STEP 1) ===== */
+.mode-cards { display: grid; gap: 16px; margin-bottom: 32px; }
+
+.mode-card {
+  background: var(--chalk);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  padding: 26px 28px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px;
+  align-items: center;
+  box-shadow: var(--shadow);
+}
+
+.mode-card:hover {
+  border-color: var(--mint);
+  transform: translateY(-2px);
+}
+
+.mode-card.sel {
+  border-color: var(--coral);
+  background: var(--coral-lt);
+  box-shadow: 0 8px 28px rgba(232,112,58,0.12);
+}
+
+.micon {
+  font-size: 28px;
+  background: var(--sand);
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.mode-card.sel .micon {
+  background: rgba(232,112,58,0.12);
+  border-color: rgba(232,112,58,0.3);
+}
+
+.mtitle {
+  font-family: var(--ff-h);
+  font-size: 20px;
+  color: var(--ocean);
+  margin-bottom: 4px;
+  letter-spacing: -0.3px;
+}
+
+.mdesc {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+/* ===== USAGE/VEHICLE CARDS ===== */
+.usage-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 680px) {
+  .usage-cards { grid-template-columns: 1fr; }
+}
+
+.usage-card {
+  background: var(--chalk);
+  border: 2px solid transparent;
+  padding: 22px 18px;
+  border-radius: var(--radius);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.22s;
+  box-shadow: var(--shadow);
+}
+
+.usage-card .uc-title {
+  font-family: var(--ff-h);
+  font-size: 17px;
+  color: var(--ocean);
+  margin-bottom: 6px;
+}
+
+.usage-card .uc-sub {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.usage-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--coral);
+}
+
+.usage-card.sel {
+  border-color: var(--coral);
+  background: var(--coral-lt);
+}
+
+.usage-card.sel .uc-title { color: var(--coral); }
+
+/* ===== INFO NOTICE ===== */
+.info-notice {
+  background: #fff8f0;
+  color: #a04e1e;
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 22px;
+  border-left: 4px solid var(--coral);
+  line-height: 1.55;
+}
+
+/* ===== DEVICE INTERFACE ===== */
+.dev-group-title {
+  font-family: var(--ff-hand);
+  color: var(--ocean-mid);
+  font-size: 24px;
+  margin: 38px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px dashed var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dev-list { display: grid; gap: 12px; margin-bottom: 24px; }
+
+.dev-item {
+  background: var(--chalk);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: auto 1.2fr 1fr;
+  align-items: center;
+  gap: 20px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s;
+  border: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.dev-item:hover { border-color: var(--border); }
+
+@media (max-width: 600px) {
+  .dev-item { grid-template-columns: auto 1fr; gap: 14px; }
+  .dev-control { grid-column: span 2; }
+}
+
+.dev-name {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--ocean);
+  margin-bottom: 2px;
+}
+
+.dev-watts {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.dev-control {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dev-slider {
+  flex: 1;
+  accent-color: var(--ocean);
+  cursor: pointer;
+  height: 4px;
+  border-radius: 4px;
+}
+
+.dev-res {
+  font-family: var(--ff-h);
+  font-weight: 700;
+  text-align: right;
+  min-width: 68px;
+  color: var(--coral);
+  font-size: 20px;
+}
+
+/* Checkbox labels */
+.checkbox-label {
+  display: block;
+  background: var(--chalk);
+  padding: 18px 22px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  box-shadow: var(--shadow);
+  border: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.checkbox-label:hover { border-color: var(--coral); }
+
+.checkbox-label input {
+  margin-right: 12px;
+  accent-color: var(--ocean);
+  transform: scale(1.3);
+}
+
+.checkbox-label .sub-info {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 6px;
+  display: block;
+  padding-left: 30px;
+  line-height: 1.5;
+}
+
+/* sub-select inside device */
+.sub-select-box {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.sub-select-box select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+  background: white;
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* ===== LIVE BAR ===== */
+.live-bar {
+  position: sticky;
+  bottom: 22px;
+  background: rgba(13, 43, 53, 0.97);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 20px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: 0 20px 50px rgba(13,43,53,0.3);
+  z-index: 100;
+  border: 1px solid rgba(168,197,188,0.2);
+}
+
+.live-lbl {
+  font-size: 11px;
+  color: var(--mint);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.live-val {
+  font-family: var(--ff-h);
+  font-size: 32px;
+  color: white;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.live-unit {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  margin-left: 6px;
+}
+
+/* Button variants */
+.btn-dark {
+  background: var(--coral);
+  border: none;
+  border-radius: 14px;
+  padding: 16px 32px;
+  font-family: var(--ff-h);
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.22s;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 6px 18px rgba(232,112,58,0.35);
+  white-space: nowrap;
+}
+
+.btn-dark:hover {
+  background: #d4602e;
+  transform: translateY(-1px);
+}
+
+.btn-step {
+  background: var(--ocean);
+  border: none;
+  border-radius: 14px;
+  padding: 18px 36px;
+  font-family: var(--ff-h);
+  font-size: 17px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.22s;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 6px 20px rgba(13,43,53,0.2);
+}
+
+.btn-step:hover {
+  background: var(--ocean-mid);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(13,43,53,0.28);
+}
+
+/* ===== RESULTS ===== */
+.res-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 780px) {
+  .res-grid { grid-template-columns: 1fr; }
+}
+
+.res-hero {
+  background: var(--ocean);
+  color: white;
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative wave in results */
+.res-hero::before {
+  content: '';
+  position: absolute;
+  bottom: -30px;
+  right: -30px;
+  width: 160px;
+  height: 160px;
+  background: rgba(168,197,188,0.08);
+  border-radius: 50%;
+}
+
+.res-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  right: -60px;
+  width: 220px;
+  height: 220px;
+  background: rgba(168,197,188,0.05);
+  border-radius: 50%;
+}
+
+.res-eyebrow {
+  font-family: var(--ff-hand);
+  font-size: 20px;
+  color: var(--mint);
+  margin-bottom: 8px;
+}
+
+.res-huge {
+  font-family: var(--ff-h);
+  font-size: 64px;
+  font-weight: 700;
+  color: var(--coral);
+  line-height: 1.0;
+  letter-spacing: -1px;
+  margin-bottom: 4px;
+}
+
+.res-unit {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 28px;
+  font-weight: 500;
+}
+
+.res-spec {
+  background: rgba(255,255,255,0.07);
+  border-left: 3px solid var(--coral);
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+  position: relative;
+  z-index: 1;
+}
+
+.res-spec strong { color: white; }
+
+/* ===== LEAD GATE ===== */
+.gate-box {
+  background: var(--chalk);
+  border: 2px dashed var(--coral);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
+  box-shadow: var(--shadow);
+}
+
+.gate-box h4 {
+  font-family: var(--ff-h);
+  color: var(--ocean);
+  font-size: 22px;
+  letter-spacing: -0.3px;
+  margin-bottom: 10px;
+}
+
+.gate-box p {
+  color: var(--muted);
+  font-size: 15px;
+  margin-bottom: 22px;
+  line-height: 1.65;
+}
+
+.lead-input {
+  width: 100%;
+  padding: 16px 18px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  font-family: var(--ff-b);
+  font-size: 16px;
+  margin-bottom: 14px;
+  background: white;
+  color: var(--text);
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.lead-input:focus { border-color: var(--coral); }
+
+.lead-submit-btn {
+  background: var(--coral);
+  border: none;
+  color: white;
+  font-family: var(--ff-h);
+  font-size: 18px;
+  padding: 18px;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(232,112,58,0.3);
+  transition: all 0.22s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.lead-submit-btn:hover {
+  background: #d4602e;
+  transform: translateY(-2px);
+}
+
+.trust-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.trust-row svg { flex-shrink: 0; }
+
+.result-summary {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 18px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.76);
+  line-height: 1.55;
+  position: relative;
+  z-index: 1;
+}
+
+.product-list {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 20px;
+}
+
+.product-item {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 14px;
+}
+
+.product-item strong {
+  display: block;
+  color: var(--ocean);
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.product-item span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.product-item a {
+  color: var(--coral);
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.upsell-box {
+  background: var(--ocean);
+  color: white;
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-top: 18px;
+}
+
+.upsell-box h4 {
+  color: white;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.upsell-box p {
+  color: rgba(255,255,255,0.74);
+  margin-bottom: 14px;
+}
+
+.upsell-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(255,255,255,0.82);
+  cursor: pointer;
+}
+
+.upsell-option input {
+  margin-top: 3px;
+  accent-color: var(--coral);
+  transform: scale(1.2);
+}
+
+/* ===== DANKE ===== */
+.thanks-card {
+  background: var(--chalk);
+  border-radius: var(--radius-lg);
+  padding: 60px 50px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  animation: fadeUp 0.6s ease-out;
+}
+
+.thanks-icon { font-size: 60px; margin-bottom: 18px; }
+
+.thanks-card h2 {
+  font-family: var(--ff-h);
+  font-size: 34px;
+  color: var(--ocean);
+  margin-bottom: 14px;
+  letter-spacing: -0.5px;
+}
+
+.thanks-card > p {
+  color: var(--muted);
+  font-size: 16px;
+  max-width: 500px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+}
+
+.cta-box {
+  background: var(--coral-lt);
+  border: 1px solid rgba(232,112,58,0.25);
+  border-radius: var(--radius);
+  padding: 32px 36px;
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.cta-box h3 {
+  font-family: var(--ff-h);
+  color: var(--ocean);
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.cta-box p {
+  color: var(--muted);
+  font-size: 15px;
+  margin-bottom: 20px;
+  line-height: 1.65;
+}
+
+.cta-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ocean);
+  color: white;
+  text-decoration: none;
+  font-family: var(--ff-h);
+  padding: 15px 28px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  transition: all 0.2s;
+  box-shadow: 0 6px 16px rgba(13,43,53,0.2);
+}
+
+.cta-link-btn:hover {
+  background: var(--ocean-mid);
+  transform: translateY(-1px);
+}
+
+/* ===== COOKIE BANNER ===== */
+.cookie-banner {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 360px;
+  background: white;
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius);
+  padding: 22px;
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (max-width: 420px) {
+  .cookie-banner {
+    left: 14px;
+    right: 14px;
+    width: auto;
+    bottom: 14px;
+  }
+}
+
+.cookie-title {
+  font-family: var(--ff-h);
+  font-size: 17px;
+  color: var(--ocean);
+}
+
+.cookie-text {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.cookie-btns { display: flex; gap: 10px; justify-content: flex-end; }
+
+.cookie-accept-btn {
+  background: var(--ocean);
+  color: white;
+  border: none;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-family: var(--ff-h);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cookie-accept-btn:hover { background: var(--ocean-mid); }
+
+/* ===== FOOTER ===== */
+footer {
+  margin-top: 80px;
+  padding: 40px 0 32px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.footer-main {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+@media (max-width: 480px) {
+  .footer-main { flex-direction: column; text-align: center; }
+}
+
+.footer-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--ocean);
+  flex-shrink: 0;
+}
+
+.footer-text {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.footer-sign {
+  font-family: var(--ff-hand);
+  font-size: 20px;
+  color: var(--ocean);
+}
+
+.legal-toggle-area {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.legal-link {
+  color: var(--muted);
+  text-decoration: none;
+  cursor: pointer;
+  border-bottom: 1px dashed var(--muted);
+}
+
+.legal-link:hover { color: var(--ocean); }
+
+.legal-dropdown {
+  display: none;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 22px;
+  font-size: 13px;
+  color: var(--muted);
+  max-height: 240px;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.restart-btn {
+  background: var(--ocean);
+  border: 1.5px solid var(--ocean);
+  color: white;
+  padding: 18px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--ff-h);
+  font-size: 16px;
+  margin-top: 24px;
+  width: 100%;
+  transition: all 0.2s;
+  box-shadow: 0 8px 22px rgba(13,43,53,0.18);
+}
+
+.restart-btn:hover {
+  background: var(--ocean-mid);
+  border-color: var(--ocean-mid);
+  transform: translateY(-1px);
+}
+
+/* ===== SYSTEM MONITORING RADIO ===== */
+.radio-card {
+  display: block;
+  background: var(--chalk);
+  padding: 18px 22px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  box-shadow: var(--shadow);
+  border: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.radio-card:hover { border-color: var(--coral); }
+
+.radio-card input { margin-right: 12px; accent-color: var(--ocean); transform: scale(1.3); }
+
+.radio-card .sub-info {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 6px;
+  display: block;
+  padding-left: 30px;
+  line-height: 1.5;
+}
+
+.vehicle-helper {
+  background: var(--chalk);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin: 22px 0 8px;
+  box-shadow: var(--shadow);
+}
+
+.vehicle-helper-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+@media (max-width: 560px) {
+  .vehicle-helper-row { grid-template-columns: 1fr; }
+}
+
+.vehicle-helper input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  font-size: 15px;
+  font-family: var(--ff-b);
+}
+
+.vehicle-helper-note {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+/* ===== UTILS ===== */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ===== COOKIE BANNER ===== -->
+<div class="cookie-banner" id="cookieBanner">
+  <div class="cookie-title">🍪 Kurze Info</div>
+  <div class="cookie-text">
+    Wir speichern deine Auswertungs-Schritte lokal auf deinem Gerät. Keine Weitergabe an Dritte.
+  </div>
+  <div class="cookie-btns">
+    <button class="cookie-accept-btn" onclick="acceptCookies()">Alles klar!</button>
+  </div>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero-section" id="heroSection">
+  <div class="hero-bg"></div>
+
+  <nav class="hero-nav">
+    <a class="logo" onclick="restartAll()" href="#">
+      <div class="logo-bolt">⚡</div>
+      <span class="logo-name">CamperVolt</span>
+    </a>
+    <div class="trust-pill">100 % firmenunabhängig</div>
+  </nav>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      Vanlife-Elektrik einfach planen
+    </div>
+    <h1 class="hero-h1">
+      Dein Van.<br>
+      Deine <em>Freiheit</em>.<br>
+      Kein Blackout.
+    </h1>
+    <p class="hero-sub">
+      Berechne Batterie, Solar und Ladequellen für deinen Camper. Am Ende bekommst du eine klare Systemempfehlung und eine vorbereitete Kaufliste.
+    </p>
+    <div class="hero-cta-row">
+      <button class="btn-primary" onclick="startConfigurator()">
+        Jetzt kostenlos berechnen
+        <span>→</span>
+      </button>
+      <button class="btn-ghost" onclick="startConfigurator()">
+        Direkt zum Konfigurator →
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MAIN APP WRAPPER ===== -->
+<div class="app">
+
+  <!-- JONAS STORY -->
+  <section class="story-section" id="storySection">
+    <div class="section-tag">Der Mensch dahinter</div>
+    <h2 class="section-h2">Drei Vans. Jede Menge Lehrgeld.</h2>
+    <p style="color:var(--muted); font-size:16px; max-width:560px; line-height:1.7;">
+      Ich habe alle Fehler gemacht, die man beim Ausbau machen kann – damit du sie nicht machen musst.
+    </p>
+
+    <div class="jonas-intro" style="margin-top:36px;">
+      <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&h=200&q=80" alt="Jonas Müller" class="jonas-avatar">
+      <div>
+        <div class="jonas-name">Jonas Müller – Camper-Selbstausbauer</div>
+        <p class="jonas-bio">
+          Angefangen mit einem provisorischen Berlingo-Ausbau, optimiert im VW California, perfektioniert im Fiat Ducato mit 600W Solar, 300Ah LiFePO4 und Induktionskochfeld. Ich berate 100 % firmenunabhängig – kein Sponsoring, keine versteckten Empfehlungen.
+        </p>
+        <div class="jonas-tags">
+          <span class="jtag">☀️ Solar-Systeme</span>
+          <span class="jtag">🔋 LiFePO4 Batterien</span>
+          <span class="jtag">⚡ DC/AC-Verkabelung</span>
+          <span class="jtag">🛠️ Selbstausbau seit 2018</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="story-grid">
+      <div class="story-card">
+        <img src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=400&h=200&q=80" class="story-card-img" alt="Berlingo Ausbau">
+        <div class="sticker">Start 2018</div>
+        <div class="story-card-body">
+          <div class="story-card-label">Citroën Berlingo</div>
+          <div class="story-card-text">Provisorisch, minimalistisch, lehrreich. Kühlbox über Bordsteckdose – nach 3 Stunden Standzeit: leere Starterbatterie.</div>
+        </div>
+      </div>
+      <div class="story-card">
+        <img src="https://images.unsplash.com/photo-1613214149922-f1809c99b414?auto=format&fit=crop&w=400&h=200&q=80" class="story-card-img" alt="Solar">
+        <div class="sticker">Upgrade</div>
+        <div class="story-card-body">
+          <div class="story-card-label">VW California</div>
+          <div class="story-card-text">Erster Ladebooster, 100Ah AGM, 180W Solarpanel. Endlich autark auf dem Campingplatz – fast.</div>
+        </div>
+      </div>
+      <div class="story-card">
+        <img src="https://images.unsplash.com/photo-1527786356703-4b100091cd2c?auto=format&fit=crop&w=400&h=200&q=80" class="story-card-img" alt="Ducato High End">
+        <div class="sticker">🏆 Jetzt</div>
+        <div class="story-card-body">
+          <div class="story-card-label">Fiat Ducato</div>
+          <div class="story-card-text">600W Solar, 300Ah LiFePO4, 2000W Wechselrichter, Induktion. Echter Netz-Betrieb. Monatelang autark.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:44px;">
+      <button class="btn-step" onclick="startConfigurator()">
+        Meinen Konfigurator starten ⚡
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== STEPPER ===== -->
+  <div class="steps-wrap" id="stepsBlock">
+    <div class="steps">
+      <div class="sdot active" id="sd1"><div class="d">1</div><span class="lbl">System</span></div>
+      <div class="sline"></div>
+      <div class="sdot" id="sd2"><div class="d">2</div><span class="lbl">Fahrzeug</span></div>
+      <div class="sline"></div>
+      <div class="sdot" id="sd3"><div class="d">3</div><span class="lbl">Ausstattung</span></div>
+      <div class="sline"></div>
+      <div class="sdot" id="sd4"><div class="d">4</div><span class="lbl">Ergebnis</span></div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 1: SYSTEM WAHL ===== -->
+  <div class="step" id="step1">
+    <div class="sh">
+      <div class="sh-tag">Schritt 1 von 3</div>
+      <h2>Wie soll dein Ausbau aussehen?</h2>
+      <p>Wähle den Pfad, der zu deinen Plänen passt.</p>
+    </div>
+
+    <div class="mode-cards">
+      <div class="mode-card sel" onclick="pickMode(this,'low')">
+        <div class="micon">🔌</div>
+        <div>
+          <div class="mtitle">Plug & Play Powerstation</div>
+          <div class="mdesc">All-in-One Akku-Box, auch für große Vans. Ideal, wenn du schnell starten willst und nur wenige feste Einbauten planst.</div>
+        </div>
+      </div>
+      <div class="mode-card" onclick="pickMode(this,'mid')">
+        <div class="micon">🛠️</div>
+        <div>
+          <div class="mtitle">Klassisches Festeinbau-System</div>
+          <div class="mdesc">Batterie, Ladebooster & MPPT-Solarregler als getrennte Komponenten fest verbaut. Mehr Freiheit bei der Auswahl, volle Kontrolle.</div>
+        </div>
+      </div>
+      <div class="mode-card" onclick="pickMode(this,'high')">
+        <div class="micon">⚡</div>
+        <div>
+          <div class="mtitle">High-End Vollsystem</div>
+          <div class="mdesc">Vollwertige Netz-Unabhängigkeit inkl. 230V-Wechselrichter für Induktionskochfeld, Kaffeemaschine und alles andere.</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-step" onclick="processPathStep1()">Weiter →</button>
+  </div>
+
+  <!-- ===== STEP 2: FAHRZEUG & DETAILS ===== -->
+  <div class="step" id="step2">
+    <button class="back-btn" onclick="go(1)">← Zurück</button>
+    <div id="step2Content"></div>
+    <button class="btn-step" style="margin-top:24px;" onclick="processStep2Data()">Weiter zur Geräte-Konfiguration →</button>
+  </div>
+
+  <!-- ===== STEP 3: GERÄTE ===== -->
+  <div class="step" id="step3">
+    <button class="back-btn" onclick="go(2)">← Zurück</button>
+    <div class="sh">
+      <div class="sh-tag">Schritt 3 von 3</div>
+      <h2>Deine Verbraucher & Erzeuger</h2>
+      <p id="motivationText"></p>
+    </div>
+
+    <div id="deviceSelectionArea"></div>
+
+    <div class="live-bar" id="liveBarElement">
+      <div>
+        <div class="live-lbl" id="liveBarLabel">Tagesbedarf</div>
+        <div>
+          <span class="live-val" id="liveAh">0</span>
+          <span class="live-unit" id="liveUnit">Ah / Tag</span>
+        </div>
+      </div>
+      <button class="btn-dark" onclick="go(4)">Auswertung →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 4: ERGEBNIS ===== -->
+  <div class="step" id="step4">
+    <button class="back-btn" onclick="go(3)">← Zurück</button>
+    <div id="resultContent"></div>
+    <button class="restart-btn" onclick="restartAll()">🔄 Neue Berechnung starten</button>
+  </div>
+
+  <!-- ===== DANKE ===== -->
+  <div class="step" id="stepThanks">
+    <div class="thanks-card">
+      <div class="thanks-icon">📩</div>
+      <h2>Auf dem Weg in dein Postfach!</h2>
+      <p>Deine Anfrage wurde gesendet. Die Konfiguration enthält jetzt alle Daten für Kaufliste, Produktlinks und optionalen Schaltplan.</p>
+
+      <div class="cta-box">
+        <h3>Persönliche Hilfe beim Einbau?</h3>
+        <p>Lass uns deine Elektrik in einem <strong>kostenlosen 30-Minuten Video-Call</strong> gemeinsam durchgehen – ich zeige dir genau, was du brauchst und was du weglassen kannst.</p>
+        <a href="mailto:deine-email@beispiel.de?subject=Erstgespräch%20Camper-Elektrik%20CamperVolt" class="cta-link-btn">
+          Hey Jonas, wann hast du Zeit? →
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <div class="footer-main">
+      <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80" alt="Jonas Müller" class="footer-avatar">
+      <div class="footer-text">
+        Konzipiert & geprüft von Camper-Selbstausbauer <span class="footer-sign">Jonas Müller</span>.<br>
+        100 % firmenunabhängig. Kein Sponsoring. Keine Affiliates.
+      </div>
+    </div>
+
+    <div class="legal-toggle-area">
+      <span class="legal-link" onclick="toggleLegal('boxImpressum')">Impressum</span>
+      <span class="legal-link" onclick="toggleLegal('boxDatenschutz')">Datenschutz</span>
+    </div>
+
+    <div id="boxImpressum" class="legal-dropdown">
+      <strong>Impressum</strong><br><br>
+      [Dein Name / Firmenname]<br>
+      [Deine Straße und Hausnummer]<br>
+      [Deine PLZ und Ort]<br><br>
+      E-Mail: [Deine E-Mail Adresse]
+    </div>
+
+    <div id="boxDatenschutz" class="legal-dropdown">
+      <strong>Datenschutzerklärung</strong><br><br>
+      Die Nutzung dieses Rechners erfasst im letzten Schritt deine E-Mail-Adresse, um die Ergebnisse zuzustellen. Deine Anfrage wird über eine Netlify Function verarbeitet und als PDF-Auswertung per E-Mail vorbereitet. Deine Daten werden nicht an Dritte weitergegeben und nicht für Werbezwecke genutzt.
+    </div>
+  </footer>
+
+</div><!-- end .app -->
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+/* ==========================================
+   STATE
+   ========================================== */
+let mode = 'low';
+let vehicleSize = 'klein';
+let batteryType = 'lifepo4';
+let hasBooster = true;
+let hasLandstrom = false;
+let hasWechselrichter = false;
+let hasSolartasche = false;
+let controlType = 'shunt';
+let laptopCableType = '12v'; // 12v = direkt/USB-C, 230v = über Wechselrichter
+
+/* Gerätedatenbank
+   Watt-Angaben: reale Praxis-Werte (keine Herstelleroptimismus-Werte)
+   default_h: typische Tagesstunden im Vanlife-Alltag */
+const COMPONENT_DB = {
+  verbraucher: [
+    {
+      id: 'v_cooler',
+      name: 'Kompressor-Kühlbox (12V)',
+      w: 40,
+      default_h: 8,
+      info: "Läuft intervallmäßig. Realer Verbrauch ca. 27 Ah/Tag.",
+      is230v: false
+    },
+    {
+      id: 'v_heater',
+      name: 'Diesel-Standheizung (Steuerung & Lüfter)',
+      w: 10,
+      default_h: 6,
+      info: "Nur Elektronik & Gebläse. Diesel verbraucht separat. Nur bei Festeinbau.",
+      is230v: false
+    },
+    {
+      id: 'v_laptop',
+      name: 'Laptop (Laden & Arbeiten)',
+      w: 55,
+      default_h: 3,
+      info: "Über USB-C direkt 12V laden ist effizienter als 230V Netzteil.",
+      is230v: false  /* wird dynamisch angepasst */
+    },
+    {
+      id: 'v_lights',
+      name: 'LED-Licht & USB-Laden (Handys etc.)',
+      w: 18,
+      default_h: 4,
+      info: "Grundbeleuchtung + Smartphone-Ladung für 1–2 Personen.",
+      is230v: false
+    },
+    {
+      id: 'v_water',
+      name: 'Druckwasserpumpe',
+      w: 40,
+      default_h: 0.2,
+      info: "Läuft nur kurz beim Zapfen. Unter 1 Ah/Tag ist realistisch.",
+      is230v: false
+    },
+    {
+      id: 'v_induction',
+      name: 'Induktionskochfeld 1 Platte (230V)',
+      w: 1400,
+      default_h: 0.5,
+      info: "Kochen ~30 Min/Tag. Benötigt zwingend Wechselrichter. Massiver Kurzzeit-Verbraucher.",
+      is230v: true
+    }
+  ]
+};
+
+let selectedComponents = {};
+
+/* ==========================================
+   INIT
+   ========================================== */
+window.addEventListener('DOMContentLoaded', () => {
+  if (!localStorage.getItem('cookiesAccepted')) {
+    setTimeout(() => {
+      document.getElementById('cookieBanner').style.display = 'flex';
+    }, 2000);
+  }
+  // Standardauswahl setzen
+  COMPONENT_DB.verbraucher.forEach(v => { v.h = v.default_h; });
+});
+
+function acceptCookies() {
+  localStorage.setItem('cookiesAccepted', 'true');
+  document.getElementById('cookieBanner').style.display = 'none';
+}
+
+/* ==========================================
+   NAVIGATION
+   ========================================== */
+function startConfigurator() {
+  document.getElementById('storySection').style.display = 'none';
+  document.getElementById('stepsBlock').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  go(1);
+}
+
+function go(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('step' + n);
+  if (target) {
+    target.classList.add('active');
+    setTimeout(() => {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  }
+
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('sd' + i);
+    if (!dot) continue;
+    dot.classList.remove('active', 'done');
+    if (i < n) dot.classList.add('done');
+    if (i === n) dot.classList.add('active');
+  }
+
+  if (n === 3) setupStep3Interface();
+  if (n === 4) buildResults();
+}
+
+function toggleLegal(id) {
+  const el = document.getElementById(id);
+  el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+}
+
+/* ==========================================
+   STEP 1 – MODUS
+   ========================================== */
+function pickMode(el, m) {
+  mode = m;
+  document.querySelectorAll('#step1 .mode-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+/* ==========================================
+   STEP 2 – FAHRZEUG / OPTIONEN
+   ========================================== */
+function setVehicleSize(el, size) {
+  vehicleSize = size;
+  document.querySelectorAll('.vsize-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function applyVehicleLength() {
+  const input = document.getElementById('vehicleLengthInput');
+  const note = document.getElementById('vehicleLengthNote');
+  if (!input) return;
+
+  const raw = parseFloat(String(input.value).replace(',', '.'));
+  if (!raw) {
+    if (note) note.textContent = 'Bitte gib deine Fahrzeuglänge in Metern ein, z.B. 5,99.';
+    return;
+  }
+
+  const size = raw < 5 ? 'klein' : raw <= 6 ? 'mittel' : 'gross';
+  const card = document.querySelector(`.vsize-card[onclick*="'${size}'"]`);
+  if (card) setVehicleSize(card, size);
+
+  if (note) {
+    const label = size === 'klein' ? 'unter 5 m' : size === 'mittel' ? '5 bis 6 m' : 'über 6 m';
+    note.textContent = `Erkannt: ${label}. Die Fahrzeugklasse wurde übernommen.`;
+  }
+}
+
+function setBatteryType(el, type) {
+  batteryType = type;
+  document.querySelectorAll('.vbatt-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function processPathStep1() {
+  const container = document.getElementById('step2Content');
+  let html = '';
+
+  if (mode === 'low') {
+    vehicleSize = 'klein';
+    hasSolartasche = true;
+
+    html = `
+      <div class="sh">
+        <div class="sh-tag">Schritt 2 von 3</div>
+        <h2>Dein Fahrzeug</h2>
+        <p>Die Fahrzeuggröße bestimmt, welche Powerstation-Klasse Sinn macht.</p>
+      </div>
+      <div class="usage-cards">
+        <div class="usage-card vsize-card sel" onclick="setVehicleSize(this,'klein')">
+          <div class="uc-title">Unter 5 Meter</div>
+          <div class="uc-sub">Micro-Camper & Hochdachkombis<br>(Berlingo, Caddy, Dobló …)</div>
+        </div>
+        <div class="usage-card vsize-card" onclick="setVehicleSize(this,'mittel')">
+          <div class="uc-title">5 bis 6 Meter</div>
+          <div class="uc-sub">Kompakte Vans<br>(VW T6/T7, Vito, Transit Custom …)</div>
+        </div>
+        <div class="usage-card vsize-card" onclick="setVehicleSize(this,'gross')">
+          <div class="uc-title">Über 6 Meter</div>
+          <div class="uc-sub">Ducato L4, Sprinter, Crafter<br>mit mobiler oder hybrider Lösung</div>
+        </div>
+      </div>
+      <div class="vehicle-helper">
+        <div class="vehicle-helper-row">
+          <input id="vehicleLengthInput" type="number" min="3" max="8" step="0.01" placeholder="Fahrzeuglänge in m, z.B. 5,99">
+          <button class="btn-dark" type="button" onclick="applyVehicleLength()">Größe bestimmen</button>
+        </div>
+        <div class="vehicle-helper-note" id="vehicleLengthNote">Unsicher? Länge eintragen und automatisch die passende Klasse wählen.</div>
+      </div>
+    `;
+  } else if (mode === 'mid') {
+    vehicleSize = 'mittel';
+    batteryType = 'lifepo4';
+    hasSolartasche = false;
+
+    html = `
+      <div class="sh">
+        <div class="sh-tag">Schritt 2 von 3</div>
+        <h2>Fahrzeug & Batterietyp</h2>
+        <p>Die Dachfläche bestimmt deine maximale Solarleistung.</p>
+      </div>
+      <div class="sec-lbl">Fahrzeuglänge</div>
+      <div class="usage-cards">
+        <div class="usage-card vsize-card" onclick="setVehicleSize(this,'klein')">
+          <div class="uc-title">Unter 5 m</div>
+          <div class="uc-sub">Berlingo, T6, Caddy</div>
+        </div>
+        <div class="usage-card vsize-card sel" onclick="setVehicleSize(this,'mittel')">
+          <div class="uc-title">5 – 6 m</div>
+          <div class="uc-sub">Ducato L2, Sprinter</div>
+        </div>
+        <div class="usage-card vsize-card" onclick="setVehicleSize(this,'gross')">
+          <div class="uc-title">Über 6 m</div>
+          <div class="uc-sub">Sprinter L4, Crafter lang</div>
+        </div>
+      </div>
+      <div class="vehicle-helper">
+        <div class="vehicle-helper-row">
+          <input id="vehicleLengthInput" type="number" min="3" max="8" step="0.01" placeholder="Fahrzeuglänge in m, z.B. 5,99">
+          <button class="btn-dark" type="button" onclick="applyVehicleLength()">Größe bestimmen</button>
+        </div>
+        <div class="vehicle-helper-note" id="vehicleLengthNote">Die Länge hilft beim Abschätzen der nutzbaren Dachfläche für Solar.</div>
+      </div>
+
+      <div class="sec-lbl">Batterietechnologie</div>
+      <div class="usage-cards" style="grid-template-columns:repeat(2,1fr);">
+        <div class="usage-card vbatt-card sel" onclick="setBatteryType(this,'lifepo4')">
+          <div class="uc-title">LiFePO4 Lithium</div>
+          <div class="uc-sub">Modern, leicht, 90 % Tiefentladbar<br><strong style="color:var(--coral)">Empfohlen</strong></div>
+        </div>
+        <div class="usage-card vbatt-card" onclick="setBatteryType(this,'agm')">
+          <div class="uc-title">AGM / Gel</div>
+          <div class="uc-sub">Klassisch, schwer, günstiger<br>Nur 50 % nutzbar</div>
+        </div>
+      </div>
+    `;
+  } else if (mode === 'high') {
+    hasBooster = true;
+    hasLandstrom = true;
+    hasWechselrichter = true;
+    batteryType = 'lifepo4';
+    vehicleSize = 'mittel';
+
+    html = `
+      <div class="sh">
+        <div class="sh-tag">Schritt 2 von 3</div>
+        <h2>High-End Setup</h2>
+        <p>Maximale Autarkie. Alle Ladequellen sind im High-End Standard bereits integriert.</p>
+      </div>
+      <div class="info-notice">
+        ⚠️ High-End-Anlagen benötigen ein Fahrzeug mit mindestens 5 Meter Ladelänge für ausreichend Solar-Dachfläche und Batterieplatz.
+      </div>
+      <div class="usage-cards" style="grid-template-columns:repeat(2,1fr);">
+        <div class="usage-card vsize-card sel" onclick="setVehicleSize(this,'mittel')">
+          <div class="uc-title">5 – 6 Meter</div>
+          <div class="uc-sub">Fiat Ducato, Mercedes Sprinter, VW Crafter</div>
+        </div>
+        <div class="usage-card vsize-card" onclick="setVehicleSize(this,'gross')">
+          <div class="uc-title">Über 6 Meter</div>
+          <div class="uc-sub">Sprinter L4, Crafter Maxi</div>
+        </div>
+      </div>
+      <div class="vehicle-helper">
+        <div class="vehicle-helper-row">
+          <input id="vehicleLengthInput" type="number" min="5" max="8" step="0.01" placeholder="Fahrzeuglänge in m, z.B. 6,36">
+          <button class="btn-dark" type="button" onclick="applyVehicleLength()">Größe bestimmen</button>
+        </div>
+        <div class="vehicle-helper-note" id="vehicleLengthNote">High-End lohnt sich meist ab 5 m Fahrzeuglänge, weil Dachfläche und Batterieplatz zählen.</div>
+      </div>
+      <div class="info-notice" style="margin-top:8px;">
+        ✅ Dieses Setup enthält <strong>immer:</strong> Ladebooster, Landstrom-Einspeisung (230V) & 230V Wechselrichter für Induktion.
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+  go(2);
+}
+
+/* ==========================================
+   STEP 2 → STEP 3
+   ========================================== */
+function processStep2Data() {
+  const mot = document.getElementById('motivationText');
+  if (mode === 'low') {
+    mot.textContent = "Wähle die Geräte, die du täglich über deine Powerstation betreiben willst.";
+  } else {
+    mot.textContent = "Stelle die täglichen Laufzeiten deiner Verbraucher ein und aktiviere deine Ladequellen.";
+  }
+
+  // Standardauswahl je nach Modus
+  COMPONENT_DB.verbraucher.forEach(v => {
+    v.h = v.default_h;
+    if (mode === 'low') {
+      selectedComponents[v.id] = (v.id === 'v_cooler' || v.id === 'v_lights');
+    } else if (mode === 'high') {
+      selectedComponents[v.id] = (v.id !== 'v_induction'); // Induktion erst aktiv wenn Wechselrichter gesetzt
+      selectedComponents['v_induction'] = true; // High-End hat immer Wechselrichter
+    } else {
+      // Mid: Kühlbox, Licht, Heizung vorausgewählt
+      selectedComponents[v.id] = (v.id === 'v_cooler' || v.id === 'v_lights' || v.id === 'v_heater');
+    }
+  });
+
+  go(3);
+}
+
+/* ==========================================
+   STEP 3 – GERÄTE INTERFACE
+   ========================================== */
+function setupStep3Interface() {
+  const container = document.getElementById('deviceSelectionArea');
+  container.innerHTML = '';
+
+  // Live-Bar Einheit
+  if (mode === 'low') {
+    document.getElementById('liveBarLabel').textContent = "Tagesbedarf";
+    document.getElementById('liveUnit').textContent = "Ah / Tag";
+  } else {
+    document.getElementById('liveBarLabel').textContent = "Tagesbedarf";
+    document.getElementById('liveUnit').textContent = "Ah / Tag";
+  }
+
+  let html = '';
+
+  /* ERZEUGER / LADEQUELLEN */
+  if (mode === 'low') {
+    html += `
+      <div class="dev-group-title">☀️ Erzeuger & Nachladen</div>
+      <div style="margin-bottom:20px;">
+        <label class="checkbox-label">
+          <input type="checkbox" id="lowSolarCheck" onchange="hasSolartasche=this.checked; updateLiveAh();" checked>
+          Solartasche direkt an die Powerstation anschließen
+          <span class="sub-info">Empfohlen für autarkes Stehen. 200W sind ein guter Startpunkt, bei großem Tagesbedarf eher 400W.</span>
+        </label>
+      </div>
+    `;
+  } else if (mode === 'mid') {
+    html += `
+      <div class="dev-group-title">☀️ Erzeuger & Ladequellen</div>
+      <div style="margin-bottom:20px;">
+        <label class="checkbox-label">
+          <input type="checkbox" id="midBooster" checked onchange="hasBooster=this.checked; updateLiveAh();">
+          Ladebooster (B2B-Lader) einbauen
+          <span class="sub-info">💡 Lädt deine Batterie über die Lichtmaschine beim Fahren. Pflicht für LiFePO4. Empfehlung: 30A Booster.</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="midLandstrom" onchange="hasLandstrom=this.checked; updateLiveAh();">
+          230V Landstrom-Anschluss (Campingplatz)
+          <span class="sub-info">🏕️ CEE-Buchse mit 16A Absicherung. Lädt Batterie über Ladegerät. Reduziert nötige Solar-Kapazität deutlich.</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="midInverter" onchange="hasWechselrichter=this.checked; handleInverterToggle(this.checked);">
+          230V Wechselrichter einbauen
+          <span class="sub-info">⚡ Notwendig für alle 230V-Geräte. Ohne Wechselrichter kein Laptop-Netzteil, keine Kaffeemaschine, kein Induktionskochfeld.</span>
+        </label>
+      </div>
+    `;
+  } else if (mode === 'high') {
+    html += `
+      <div class="dev-group-title">✅ Fest integrierte Systemquellen (High-End)</div>
+      <div style="margin-bottom:20px; opacity:0.75;">
+        <label class="checkbox-label"><input type="checkbox" checked disabled> Ladebooster / B2B-Lader (Standard)</label>
+        <label class="checkbox-label"><input type="checkbox" checked disabled> 230V Landstrom-Einspeisung</label>
+        <label class="checkbox-label"><input type="checkbox" checked disabled> 230V Reiner Sinus-Wechselrichter ≥ 2000W</label>
+      </div>
+    `;
+  }
+
+  /* VERBRAUCHER-LISTE */
+  html += `<div class="dev-group-title">📦 Deine Verbraucher</div><div class="dev-list">`;
+
+  COMPONENT_DB.verbraucher.forEach(v => {
+    // Heizung & Induktion bei Plug&Play ausblenden (macht technisch keinen Sinn)
+    if (mode === 'low' && (v.id === 'v_heater' || v.id === 'v_induction')) return;
+    // Heizung bei Plug&Play ausblenden
+    if (mode === 'low' && v.id === 'v_heater') return;
+
+    let isChecked = selectedComponents[v.id] ? 'checked' : '';
+    let isSliderDisabled = selectedComponents[v.id] ? '' : 'disabled';
+    let currentVal = selectedComponents[v.id] ? v.h : 0;
+
+    // Induktion bei mid nur aktiv wenn Wechselrichter aktiv
+    let rowDisabledStyle = '';
+    if (mode === 'mid' && v.id === 'v_induction' && !hasWechselrichter) {
+      rowDisabledStyle = 'opacity:0.35; pointer-events:none;';
+      isChecked = '';
+      isSliderDisabled = 'disabled';
+      currentVal = 0;
+      selectedComponents['v_induction'] = false;
+    }
+
+    // Laptop: USB-C (12V direkt) oder 230V-Netzteil Auswahl
+    let laptopSelectHtml = '';
+    if (v.id === 'v_laptop' && mode !== 'low') {
+      laptopSelectHtml = `
+        <div class="sub-select-box">
+          Anschlussart:
+          <select onchange="handleLaptopCableChange(this.value)">
+            <option value="12v">Effizient: USB-C 12V Direktkabel (empfohlen)</option>
+            <option value="230v">Original 230V Netzteil über Wechselrichter</option>
+          </select>
+        </div>`;
+    }
+
+    html += `
+      <div class="dev-item" style="${rowDisabledStyle}">
+        <input type="checkbox" ${isChecked} id="chk_${v.id}"
+          onchange="toggleVerbraucher('${v.id}', this.checked)"
+          style="transform:scale(1.5); accent-color:var(--ocean); cursor:pointer; flex-shrink:0;">
+        <div class="dev-info">
+          <div class="dev-name">${v.name}</div>
+          <div class="dev-watts">${v.w} W · ${v.info}</div>
+          ${laptopSelectHtml}
+        </div>
+        <div class="dev-control">
+          <input type="range" class="dev-slider" min="0.1" max="16" step="0.1"
+            value="${v.h}"
+            oninput="updateVerbraucherHours('${v.id}', this.value)"
+            ${isSliderDisabled}>
+          <div class="dev-res" id="res_${v.id}">${currentVal > 0 ? currentVal + ' h' : '– h'}</div>
+        </div>
+      </div>`;
+  });
+
+  html += '</div>';
+
+  /* SYSTEMÜBERWACHUNG (nur Festeinbau) */
+  if (mode !== 'low') {
+    html += `
+      <div class="dev-group-title">📊 Systemüberwachung</div>
+      <label class="radio-card">
+        <input type="radio" name="ctrl_type" checked onclick="controlType='shunt';">
+        SmartShunt (Victron) – Präzise Ladezustandsmessung
+        <span class="sub-info">Misst alle Ströme direkt am Minuspol. App-Anbindung per Bluetooth. Absolut empfohlen – du weißt immer genau, wie viel noch drin ist.</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="ctrl_type" onclick="controlType='bluetooth_batt';">
+        Batterie-BMS mit Bluetooth (integriert)
+        <span class="sub-info">Bei LiFePO4-Batterien mit integriertem BMS und Bluetooth-App. Kein Extra-Gerät nötig, aber weniger Detail-Info.</span>
+      </label>
+    `;
+  }
+
+  container.innerHTML = html;
+  updateLiveAh();
+}
+
+function handleInverterToggle(isActive) {
+  hasWechselrichter = isActive;
+  if (!isActive) selectedComponents['v_induction'] = false;
+  setupStep3Interface();
+}
+
+function handleLaptopCableChange(val) {
+  laptopCableType = val;
+  // 230V Netzteil hat ~20% Wandlerverlust zusätzlich
+  updateLiveAh();
+}
+
+function toggleVerbraucher(id, isChecked) {
+  selectedComponents[id] = isChecked;
+  const comp = COMPONENT_DB.verbraucher.find(v => v.id === id);
+  const resLabel = document.getElementById('res_' + id);
+  const slider = resLabel?.previousElementSibling;
+
+  if (slider && comp) {
+    slider.disabled = !isChecked;
+    if (isChecked) {
+      slider.value = comp.h;
+      resLabel.textContent = comp.h + ' h';
+    } else {
+      resLabel.textContent = '– h';
+    }
+  }
+  updateLiveAh();
+}
+
+function updateVerbraucherHours(id, val) {
+  const comp = COMPONENT_DB.verbraucher.find(v => v.id === id);
+  if (comp) comp.h = parseFloat(val);
+  const resLabel = document.getElementById('res_' + id);
+  if (resLabel) resLabel.textContent = parseFloat(val).toFixed(1) + ' h';
+  updateLiveAh();
+}
+
+/* ==========================================
+   BERECHNUNG – KERNLOGIK
+   ========================================== */
+function calculateTotalWhBedarf() {
+  let totalWh = 0;
+
+  COMPONENT_DB.verbraucher.forEach(v => {
+    if (!selectedComponents[v.id]) return;
+
+    let watt = v.w;
+
+    // Laptop: 230V Netzteil hat ~85% Effizienz im Wechselrichter (20% Verlust gesamt)
+    if (v.id === 'v_laptop' && laptopCableType === '230v') {
+      watt = watt * 1.20;
+    }
+
+    totalWh += watt * v.h;
+  });
+
+  // Wechselrichter-Standby-Verlust (ca. 15W * 2h wenn vorhanden)
+  if ((mode === 'mid' && hasWechselrichter) || mode === 'high') {
+    const has230vDevice = COMPONENT_DB.verbraucher.some(v =>
+      selectedComponents[v.id] && v.is230v
+    );
+    if (has230vDevice) totalWh += 15 * 2; // Standby-Verluste
+  }
+
+  return Math.round(totalWh);
+}
+
+function updateLiveAh() {
+  const el = document.getElementById('liveAh');
+  if (!el) return;
+
+  const totalWh = calculateTotalWhBedarf();
+
+  if (mode === 'low') {
+    el.textContent = Math.round(totalWh / 12);
+  } else {
+    // Systemspannung 12V, + 10% Sicherheitspuffer für Kabel-/Wandlerverluste
+    const totalAh = Math.round((totalWh / 12) * 1.1);
+    el.textContent = totalAh;
+  }
+}
+
+/* ==========================================
+   ERGEBNISBERECHNUNG
+   ========================================== */
+function roundToMarketBattery(exactAh) {
+  const sizes = [60, 100, 120, 150, 200, 280, 300, 400];
+  for (const s of sizes) {
+    if (exactAh <= s) return s;
+  }
+  return Math.ceil(exactAh / 100) * 100;
+}
+
+function buildProductRecommendations({ stationKlasse, solarEmpf, batteryAh, solarFinal, battTypeLabel }) {
+  if (mode === 'low') {
+    const stationQuery = encodeURIComponent(stationKlasse.name);
+    return [
+      {
+        title: `Powerstation: ${stationKlasse.name}`,
+        note: `${stationKlasse.wh} Wh Klasse, passend zu deinem Tagesbedarf. Alternativ in gleicher Größenklasse vergleichen.`,
+        url: `https://www.google.com/search?q=${stationQuery}`
+      },
+      {
+        title: `Solartasche: ${solarEmpf}`,
+        note: hasSolartasche ? 'Mit passendem Eingang für deine Powerstation prüfen.' : 'Optional, falls du länger frei stehen willst.',
+        url: `https://www.google.com/search?q=${encodeURIComponent(solarEmpf + ' Solartasche Powerstation')}`
+      },
+      {
+        title: '12V Kühlbox-Kabel und USB-C PD Adapter',
+        note: 'Direkt über 12V/USB-C betreiben spart Wechselrichterverluste.',
+        url: 'https://www.google.com/search?q=12V+K%C3%BChlbox+Kabel+USB-C+PD+Adapter+Camper'
+      },
+      {
+        title: 'Kleinteile-Set',
+        note: 'XT60/Anderson-Adapter, Sicherungshalter, Kabelbinder, Aderendhülsen und Crimpzange für saubere Anschlüsse.',
+        url: 'https://www.google.com/search?q=Camper+Elektrik+Kleinteile+Crimpzange+Aderendh%C3%BClsen'
+      }
+    ];
+  }
+
+  return [
+    {
+      title: `Aufbaubatterie: ${batteryAh} Ah ${battTypeLabel}`,
+      note: 'LiFePO4 ist für die meisten Ausbauten die beste Wahl. AGM nur, wenn Budget wichtiger als Gewicht und nutzbare Kapazität ist.',
+      url: `https://www.google.com/search?q=${encodeURIComponent(batteryAh + 'Ah ' + battTypeLabel + ' Camper Batterie')}`
+    },
+    {
+      title: `Solaranlage: ${solarFinal} Wp`,
+      note: 'Solarmodule, MPPT-Regler, Dachdurchführung und Halter passend zur Dachfläche planen.',
+      url: `https://www.google.com/search?q=${encodeURIComponent(solarFinal + 'Wp Solaranlage Camper MPPT')}`
+    },
+    {
+      title: hasBooster ? 'Ladebooster: 30A bis 50A' : 'Ladebooster optional ergänzen',
+      note: 'Für LiFePO4 praktisch Pflicht, bei Euro-6-Fahrzeugen besonders wichtig.',
+      url: 'https://www.google.com/search?q=Camper+Ladebooster+30A+50A+LiFePO4'
+    },
+    {
+      title: hasWechselrichter || mode === 'high' ? 'Reiner Sinus Wechselrichter' : '12V-Verteilung ohne Wechselrichter',
+      note: hasWechselrichter || mode === 'high' ? 'Für Induktion und 230V-Geräte ausreichend Reserve einplanen.' : 'Ohne 230V-Verbraucher bleibt das System günstiger und effizienter.',
+      url: 'https://www.google.com/search?q=Camper+reiner+Sinus+Wechselrichter+LiFePO4'
+    },
+    {
+      title: 'Kleinteile & Werkzeug',
+      note: 'Sicherungen, Verteiler, Hauptschalter, Kabelschuhe, Schrumpfschlauch, Wellrohr, Crimpzange und Aderendhülsen gehören in die PDF-Kaufliste.',
+      url: 'https://www.google.com/search?q=Camper+Elektrik+Sicherungen+Kabelschuhe+Crimpzange'
+    }
+  ];
+}
+
+function renderProductPreview(items) {
+  return `
+    <div class="product-list">
+      ${items.map(item => `
+        <div class="product-item">
+          <strong>${item.title}</strong>
+          <span>${item.note}</span>
+          <a href="${item.url}" target="_blank" rel="noopener">Produktbeispiele öffnen →</a>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function buildProductHiddenFields(items) {
+  return items.map((item, index) => `
+    <input type="hidden" name="Produkt_${index + 1}" value="${item.title} - ${item.note}">
+    <input type="hidden" name="Produktlink_${index + 1}" value="${item.url}">
+  `).join('');
+}
+
+function buildResults() {
+  const totalWh = calculateTotalWhBedarf();
+  let resultHtml = '';
+
+  /* ---- HIDDEN FORM FIELDS (für Backend/PDF) ---- */
+  let hiddenFields = `
+    <input type="hidden" name="_subject" value="Neue CamperVolt Anfrage mit Konfiguration">
+    <input type="hidden" name="Hinweis_PDF" value="Backend erzeugt aus diesen Daten ein PDF und kann es per SMTP versenden.">
+    <input type="hidden" name="Systemtyp" value="${mode === 'low' ? 'Plug & Play Powerstation' : mode === 'mid' ? 'Klassisches Festeinbau-System' : 'High-End Vollsystem'}">
+    <input type="hidden" name="Fahrzeuggroesse" value="${vehicleSize}">
+    <input type="hidden" name="Tagesbedarf_Wh" value="${totalWh} Wh">
+  `;
+
+  if (mode === 'low') {
+    /* ===== POWERSTATION ERGEBNIS ===== */
+    const stationKlasse = totalWh > 900
+      ? { name: 'EcoFlow DELTA 2 Max', wh: 2048, preis: '~950€' }
+      : totalWh > 500
+        ? { name: 'EcoFlow DELTA 2', wh: 1024, preis: '~550€' }
+        : { name: 'EcoFlow RIVER 2 Pro', wh: 768, preis: '~400€' };
+
+    const autarkieTage = ((stationKlasse.wh * 0.88) / (totalWh || 1)).toFixed(1);
+    const solarEmpf = totalWh < 300 ? '100–160W' : totalWh < 600 ? '160–200W' : '200–400W';
+    const totalAhRaw = Math.round(totalWh / 12);
+    const productItems = buildProductRecommendations({ stationKlasse, solarEmpf });
+
+    hiddenFields += `
+      <input type="hidden" name="Empfohlene_Station" value="${stationKlasse.name}">
+      <input type="hidden" name="Empfohlene_Solartasche" value="${solarEmpf}">
+      <input type="hidden" name="Tagesbedarf_Ah" value="${totalAhRaw} Ah">
+      ${buildProductHiddenFields(productItems)}
+    `;
+
+    resultHtml = `
+      <div class="sh">
+        <div class="sh-tag">Dein Ergebnis</div>
+        <h2>Deine Powerstation-Empfehlung</h2>
+      </div>
+      <div class="res-grid">
+        <div class="res-hero">
+          <div class="res-eyebrow">Täglicher Energiebedarf</div>
+          <div class="res-huge">${totalAhRaw}</div>
+          <div class="res-unit">Ah pro Tag bei 12V (${totalWh} Wh)</div>
+          <div class="res-spec">⚡ Empfohlen: <strong>${stationKlasse.name} (${stationKlasse.wh} Wh)</strong></div>
+          <div class="res-spec">⏳ Autarkie ohne Nachladen: <strong>ca. ${autarkieTage} Tage</strong></div>
+          <div class="res-spec">☀️ Erzeuger: <strong>${hasSolartasche ? solarEmpf + ' Solartasche' : 'optional nachrüstbar'}</strong></div>
+          <div class="res-spec">💰 Einstiegspreis Station: <strong>ab ${stationKlasse.preis}</strong></div>
+          <div class="result-summary">Die exakte Kaufliste mit passenden Adaptern, Anschlusszubehör und Alternativen wird per E-Mail vorbereitet.</div>
+        </div>
+        <div>
+          <div class="gate-box">
+            <form action="/.netlify/functions/lead" method="POST" onsubmit="submitLeadForm(event)">
+              ${hiddenFields}
+              <h4>📋 Vollständige Kaufliste freischalten</h4>
+              <p>Du bekommst die Empfehlung mit Powerstation-Klasse, Solartasche, Adaptern und Kleinteilen als sauber strukturierte Mail. Die Vorschau zeigt dir, was enthalten ist.</p>
+              ${renderProductPreview(productItems)}
+              <div class="upsell-box">
+                <h4>Schaltplan als PDF dazubuchen</h4>
+                <p>Optionaler Stromlaufplan mit Anschlusslogik, Sicherungen und Bauteilpositionen. Preisidee: 4,90 €.</p>
+                <label class="upsell-option">
+                  <input type="checkbox" name="Schaltplan_PDF" value="angefragt">
+                  Schaltplan-Angebot in der Antwortmail anzeigen
+                </label>
+              </div>
+              <input type="email" name="email" class="lead-input" placeholder="deine@email.de" required>
+              <button type="submit" class="lead-submit-btn">Kaufliste per E-Mail erhalten →</button>
+              <div class="trust-row">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                Kein Spam. Keine Weitergabe. Einmalige E-Mail.
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    `;
+
+  } else {
+    /* ===== FESTEINBAU ERGEBNIS ===== */
+    const totalAhRaw = (totalWh / 12) * 1.1;
+
+    // DoD-Faktor: LiFePO4 = 90% nutzbar, AGM = 50%
+    const dod = (batteryType === 'lifepo4') ? 0.90 : 0.50;
+    // +20% Puffer für Kapazitätsdegradation und Reserve
+    const batteryAhExact = (totalAhRaw / dod) * 1.20;
+    const batteryAh = roundToMarketBattery(batteryAhExact);
+
+    // Solar-Berechnung: ca. 4 Sonnenstunden/Tag im Mittel (Europa)
+    // Bei Festeinbau mit Booster etwas weniger Solar nötig
+    let solarWatt = Math.ceil((totalWh / 4) * 1.25); // 25% Verlust Regler/Kabel
+    if (hasBooster) solarWatt = Math.ceil(solarWatt * 0.80);
+    if (hasLandstrom) solarWatt = Math.ceil(solarWatt * 0.65);
+    const solarFinal = Math.max(80, Math.ceil(solarWatt / 10) * 10);
+
+    // Solarfläche-Check
+    const solarMaxDach = vehicleSize === 'klein' ? 280 : vehicleSize === 'mittel' ? 460 : 700;
+    const solarWarning = solarFinal > solarMaxDach
+      ? `<div class="res-spec" style="border-left-color:#e8c23a; background:rgba(232,194,58,0.1);">⚠️ <strong>Hinweis:</strong> ${solarFinal}W überschreiten die verfügbare Dachfläche deines Fahrzeugs (~${solarMaxDach}W max). Landstrom-Nutzung oder größeres Fahrzeug empfohlen.</div>`
+      : '';
+
+    // Kabelquerschnitte (reale Berechnungsbasis: 3m Leitungslänge, max. 3% Spannungsabfall)
+    const boosterKabel = batteryAh > 180 ? '25 mm² (Sicherung: 60A)' : '16 mm² (Sicherung: 40A)';
+    const wechselrichterKabel = selectedComponents['v_induction'] ? '50 mm² (Sicherung: 250A)' : '35 mm² (Sicherung: 150A)';
+    const solarKabel = '6 mm² (Sicherung: 20A)';
+    const battTypeLabel = batteryType === 'lifepo4' ? 'Lithium LiFePO4' : 'AGM/Gel';
+    const productItems = buildProductRecommendations({ batteryAh, solarFinal, battTypeLabel });
+
+    hiddenFields += `
+      <input type="hidden" name="Empfohlene_Batterie" value="${batteryAh} Ah ${batteryType === 'lifepo4' ? 'LiFePO4' : 'AGM'}">
+      <input type="hidden" name="Empfohlene_Solar" value="${solarFinal} Wp">
+      <input type="hidden" name="Kabel_Booster" value="${boosterKabel}">
+      <input type="hidden" name="Kabel_Wechselrichter" value="${wechselrichterKabel}">
+      <input type="hidden" name="Kabel_Solar" value="${solarKabel}">
+      <input type="hidden" name="Batterietyp" value="${batteryType}">
+      <input type="hidden" name="Systemtyp_Detail" value="${mode}">
+      <input type="hidden" name="Tagesbedarf_Ah" value="${Math.round(totalAhRaw)} Ah">
+      ${buildProductHiddenFields(productItems)}
+    `;
+
+    resultHtml = `
+      <div class="sh">
+        <div class="sh-tag">Dein Ergebnis</div>
+        <h2>Dein kalkuliertes Festeinbau-System</h2>
+      </div>
+      <div class="res-grid">
+        <div class="res-hero">
+          <div class="res-eyebrow">Täglicher Strombedarf</div>
+          <div class="res-huge">${Math.round(totalAhRaw)}</div>
+          <div class="res-unit">Ah pro Tag (bei 12V)</div>
+          <div class="res-spec">🔋 Empfohlene Batterie: <strong>${batteryAh} Ah ${battTypeLabel}</strong></div>
+          <div class="res-spec">☀️ Nötige Solarleistung: <strong>${solarFinal} Wp</strong></div>
+          <div class="res-spec">🔌 Ladequellen: <strong>${hasBooster ? 'Ladebooster' : 'kein Ladebooster'}${hasLandstrom ? ' + Landstrom' : ''}${(hasWechselrichter || mode === 'high') ? ' + Wechselrichter' : ''}</strong></div>
+          ${solarWarning}
+          <div class="result-summary">Kabelquerschnitte, Sicherungen und Kleinteile werden bewusst erst im Detaildokument genannt, weil sie von Leitungslängen und Einbauort abhängen.</div>
+        </div>
+        <div>
+          <div class="gate-box">
+            <form action="/.netlify/functions/lead" method="POST" onsubmit="submitLeadForm(event)">
+              ${hiddenFields}
+              <h4>📐 Kaufliste & Detailplan erhalten</h4>
+              <p>Du bekommst die großen Komponenten, sinnvolles Zubehör und die Kleinteile sauber vorbereitet. Kabel und Sicherungen gehören in den Detailplan, nicht in die grobe Ergebnisanzeige.</p>
+              ${renderProductPreview(productItems)}
+              <div class="upsell-box">
+                <h4>Schaltplan als PDF dazubuchen</h4>
+                <p>Optionaler Stromlaufplan mit Kabelwegen, Sicherungen, Querschnitten und Anschlussreihenfolge. Preisidee: 4,90 €.</p>
+                <label class="upsell-option">
+                  <input type="checkbox" name="Schaltplan_PDF" value="angefragt">
+                  Schaltplan-Angebot in der Antwortmail anzeigen
+                </label>
+              </div>
+              <input type="email" name="email" class="lead-input" placeholder="deine@email.de" required>
+              <button type="submit" class="lead-submit-btn">Kaufliste per E-Mail erhalten →</button>
+              <div class="trust-row">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                Kein Spam. Keine Weitergabe. Einmalige E-Mail.
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById('resultContent').innerHTML = resultHtml;
+}
+
+/* ==========================================
+   LEAD FORM SUBMIT
+   ========================================== */
+function submitLeadForm(event) {
+  event.preventDefault();
+  const form = event.target;
+  const btn = form.querySelector('.lead-submit-btn');
+  const originalText = btn.textContent;
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Wird gesendet …';
+  const payload = Object.fromEntries(new FormData(form).entries());
+
+  fetch(form.action, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(res => {
+    if (res.ok) {
+      document.getElementById('stepsBlock').style.display = 'none';
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.getElementById('stepThanks').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      alert('Da ist etwas schiefgelaufen. Bitte versuche es noch einmal.');
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  })
+  .catch(() => {
+    alert('Netzwerkfehler. Bitte prüfe deine Internetverbindung.');
+    btn.disabled = false;
+    btn.textContent = originalText;
+  });
+}
+
+function restartAll() {
+  mode = 'low';
+  vehicleSize = 'klein';
+  batteryType = 'lifepo4';
+  hasBooster = true;
+  hasLandstrom = false;
+  hasWechselrichter = false;
+  hasSolartasche = false;
+  controlType = 'shunt';
+  laptopCableType = '12v';
+  selectedComponents = {};
+  COMPONENT_DB.verbraucher.forEach(v => { v.h = v.default_h; });
+
+  document.getElementById('storySection').style.display = 'none';
+  document.getElementById('stepsBlock').style.display = 'block';
+  document.querySelectorAll('#step1 .mode-card').forEach(c => c.classList.remove('sel'));
+  const firstMode = document.querySelector('#step1 .mode-card');
+  if (firstMode) firstMode.classList.add('sel');
+  go(1);
+}
+</script>
+</body>
+</html>
